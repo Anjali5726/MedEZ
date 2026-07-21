@@ -193,6 +193,28 @@
       color: var(--text-secondary);
       font-size: 0.8rem;
     }
+
+    /* Portfolio Badge Styles */
+    .portfolio-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      font-weight: 500;
+      margin-top: 1.5rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: 6px;
+      background-color: rgba(148, 163, 184, 0.08);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      cursor: default;
+    }
+
+    .portfolio-badge strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
   </style>
 </head>
 <body>
@@ -248,6 +270,10 @@
       <p class="auth-footer-link">
         Don't have an account yet? <a href="/register">Register here</a>
       </p>
+
+      <div class="portfolio-badge">
+        <span>🎨</span> Portfolio project by <strong>Anjali</strong>. Please do not copy.
+      </div>
     </div>
   </main>
 

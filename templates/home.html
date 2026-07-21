@@ -64,6 +64,27 @@
             margin-top: 1rem;
             animation: slideUp 1s cubic-bezier(0.16, 1, 0.3, 1);
         }
+
+        /* Portfolio Badge Styles */
+        .portfolio-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-top: 1.5rem;
+            padding: 0.35rem 0.85rem;
+            border-radius: 6px;
+            background-color: rgba(148, 163, 184, 0.08);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            cursor: default;
+        }
+
+        .portfolio-badge strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -116,6 +137,9 @@
             </div>
             <h2 class="hero-title">Your <span>Plain-Language</span> Medical Assistant</h2>
             <p class="hero-subtitle">Built for every Indian family. Easily translate complex medical reports, find generic medicines, and evaluate symptoms.</p>
+            <div class="portfolio-badge">
+                <span>🎨</span> Portfolio project by <strong>Anjali</strong>. Please do not copy.
+            </div>
         </section>
 
 
