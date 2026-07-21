@@ -1,6 +1,6 @@
 # 🏥 MedEase — AI-Powered Healthcare Assistant for India
 
-> **Portfolio Project by Anjali**
+> **Portfolio Project**
 > 
 > *This project is built for portfolio demonstration purposes. All rights reserved. Do not copy, distribute, or reuse this codebase without explicit permission.*
 
@@ -47,5 +47,5 @@ python app.py
 
 ---
 
-*This codebase is part of Anjali's professional software engineering portfolio. Do not copy.*
+*This codebase is part of a professional software engineering portfolio. Do not copy.*
 
