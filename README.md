@@ -1,6 +1,8 @@
 # 🏥 MedEase — AI-Powered Healthcare Assistant for India
 
-> Helping every Indian family understand their medical documents in plain language.
+> **Portfolio Project by Anjali**
+> 
+> *This project is built for portfolio demonstration purposes. All rights reserved. Do not copy, distribute, or reuse this codebase without explicit permission.*
 
 🌐 **Live:** [http://medez.duckdns.org/]
 
@@ -45,5 +47,5 @@ python app.py
 
 ---
 
-*This project is for portfolio purposes. Please contact me before reusing any part of this project.*
+*This codebase is part of Anjali's professional software engineering portfolio. Do not copy.*
 
