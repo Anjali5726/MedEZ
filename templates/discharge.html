@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discharge Summary Translator — MedEase</title>
+    <!-- Premium Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Markdown Parser -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <style>
+        /* Scoped style system for the discharge translator page */
+        .recovery-dashboard {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            width: 100%;
+            margin-top: 1.5rem;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .dashboard-banner {
+            background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+            border-radius: 18px;
+            padding: 1.5rem 2rem;
+            color: white;
+            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.15);
+        }
+
+        .banner-badge {
+            display: inline-block;
+            background-color: rgba(255, 255, 255, 0.15);
+            padding: 0.25rem 0.65rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .banner-title {
+            font-size: 1.6rem;
+            font-weight: 800;
+            margin-bottom: 0.3rem;
+            color: white;
+        }
+
+        .banner-subtitle {
+            font-size: 0.92rem;
+            opacity: 0.9;
+        }
+
+        .dashboard-card {
+            background-color: #ffffff;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            border-radius: 18px;
+            padding: 2rem;
+            box-shadow: var(--shadow-premium);
+            transition: transform 0.3s ease;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-header-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            background-color: rgba(79, 70, 229, 0.08);
+            color: #4f46e5;
+        }
+
+        .card-header h4 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .card-summary {
+            border-left: 5px solid #4f46e5;
+        }
+
+        .card-body {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .card-body p { margin-bottom: 0.75rem; }
+        .card-body ul, .card-body ol { margin-left: 1.25rem; margin-bottom: 1rem; }
+        .card-body li { margin-bottom: 0.5rem; color: #334155; }
+        .card-body strong { color: #0f172a; font-weight: 600; }
+        .card-body hr { border: none; height: 1px; background-color: rgba(226, 232, 240, 0.6); margin: 1.25rem 0; }
+
+        /* Guidelines Section Styling */
+        .guidelines-section {
+            background-color: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2.25rem;
+            box-shadow: var(--shadow-premium);
+            margin-top: 2rem;
+            width: 100%;
+        }
+
+        .guidelines-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .guidelines-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .guideline-card {
+            background-color: #fafbfc;
+            border: 1px solid rgba(226, 232, 240, 0.6);
+            border-radius: 12px;
+            padding: 1.25rem;
+            transition: var(--transition-smooth);
+        }
+
+        .guideline-card:hover {
+            border-color: rgba(79, 70, 229, 0.2);
+            background-color: #ffffff;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.04);
+        }
+
+        .guideline-icon { font-size: 1.5rem; margin-bottom: 0.75rem; }
+        .guideline-heading { font-size: 1rem; font-weight: 700; color: #1e293b; margin-bottom: 0.5rem; }
+        .guideline-text { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header>
+        <div class="nav-container">
+            <a href="/" class="logo-group">
+                <div class="logo-icon-container">
+                    <span>➕</span>
+                </div>
+                <div class="logo-text-area">
+                    <h1 class="logo-title">Med<span>Ease</span></h1>
+                    <span class="logo-subtitle">Your Medical Assistant</span>
+                </div>
+            </a>
+            <nav>
+                <ul class="nav-links" style="align-items: center;">
+                    <li><a href="/" class="nav-link">Home</a></li>
+                    <li><a href="/discharge" class="nav-link active">Discharge Translator</a></li>
+                    {% if session.get('user') %}
+                        <li><a href="/records" class="nav-link">Medical Records</a></li>
+                        <li><span class="nav-link" style="color: var(--primary); font-weight: 700; cursor: default;">👤 {{ session['user']['email'].split('@')[0] }}</span></li>
+                        <li><a href="/logout" class="nav-link" style="color: var(--accent-red);">Logout</a></li>
+                    {% else %}
+                        <li><a href="/login" class="nav-link">Login</a></li>
+                        <li><a href="/register" class="nav-link" style="background: var(--primary-grad); color: white; border-radius: 8px; padding: 0.5rem 1rem;">Register</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Page Title Header -->
+        <div class="page-header">
+            <a href="/" class="back-btn">&larr;</a>
+            <div>
+                <h2 style="font-size: 2rem; color: var(--text-primary);">📄 Discharge Summary Translator</h2>
+                <p style="color: var(--text-secondary); font-size: 0.95rem;">Translate complex hospital paperwork into patient-friendly home care, medication changes, and follow-up checklists.</p>
+            </div>
+        </div>
+
+        <div class="content-grid {% if not result %}single-col{% endif %}">
+            
+            <!-- Upload Card -->
+            <div class="analyzer-card" id="uploadCard">
+                <h3 style="margin-bottom: 1.5rem; font-size: 1.25rem; color: var(--text-primary);">Translate Discharge Paperwork</h3>
+                
+                {% if error %}
+                <div class="error-banner">
+                    <span>⚠️</span>
+                    <span>{{ error }}</span>
+                </div>
+                {% endif %}
+
+                {% if save_success %}
+                <div class="alert-box alert-success" style="background-color: var(--accent-green-bg); border: 1px solid rgba(5, 150, 105, 0.2); color: #065f46; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem; font-size: 0.9rem; font-weight: 500;">
+                    <span>✅</span> Saved successfully to your medical records!
+                </div>
+                {% endif %}
+
+                <form id="uploadForm" action="/discharge" method="POST" enctype="multipart/form-data">
+                    
+                    <!-- File Upload Option -->
+                    <div class="form-group">
+                        <label class="form-label">Upload discharge summary PDF:</label>
+                        <div class="upload-zone" id="dropzone">
+                            <div class="upload-icon">📥</div>
+                            <div class="upload-text">Select or drop discharge summary PDF</div>
+                            <div class="upload-subtext">PDF files only (Max 10MB)</div>
+                            <div class="selected-filename" id="filenameDisplay"></div>
+                            <!-- name attribute matches pdf_file backend request reader -->
+                            <input type="file" name="pdf_file" id="fileInput" accept=".pdf" onchange="handleFileSelected(this)">
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; color: var(--text-muted); font-size: 0.85rem; margin: 1rem 0; font-weight: 600;">
+                        — OR —
+                    </div>
+
+                    <!-- Paste Text Option -->
+                    <div class="form-group">
+                        <label class="form-label" for="query">Paste raw text from summary:</label>
+                        <textarea class="form-input" id="query" name="query" placeholder="Paste diagnoses, surgical notes, or discharge instructions here...">{% if query %}{{ query }}{% endif %}</textarea>
+                    </div>
+
+                    {% if session.get('user') %}
+                    <div style="margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem; margin-bottom: 1.5rem;">
+                        <h4 style="margin-bottom: 1rem; color: var(--text-primary);">💾 Save to My Records</h4>
+                        <div class="form-group" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                            <div style="flex: 1; min-width: 200px; margin-bottom: 0;">
+                                <label class="form-label" style="font-size: 0.85rem;">Custom Title (Optional):</label>
+                                <input type="text" name="save_title" class="form-input" placeholder="e.g. Grandma Knee Surgery, Dec 2026" style="padding: 0.65rem 0.85rem; font-size: 0.9rem;">
+                            </div>
+                            <div style="width: 200px; margin-bottom: 0;">
+                                <label class="form-label" style="font-size: 0.85rem;">Select Folder:</label>
+                                <select name="folder_id" class="form-input" style="padding: 0.65rem 0.85rem; font-size: 0.9rem;">
+                                    <option value="">Uncategorized</option>
+                                    {% for folder in folders %}
+                                    <option value="{{ folder.id }}">{{ folder.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.92rem; color: var(--text-secondary); cursor: pointer; font-weight: 600; margin-top: 1rem;">
+                            <input type="checkbox" name="should_save" value="yes" style="width: 18px; height: 18px; cursor: pointer;">
+                            Save this translation to my folders
+                        </label>
+                    </div>
+                    {% else %}
+                    <div style="margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1.25rem; padding-bottom: 1.25rem; font-size: 0.9rem; color: var(--text-secondary); display: flex; align-items: center; gap: 0.5rem;">
+                        <span>🔒</span> <span><a href="/login" style="color: var(--primary); font-weight: 700; text-decoration: none;">Log in</a> to save your translations in custom folders.</span>
+                    </div>
+                    {% endif %}
+
+                    <button type="submit" class="btn-primary" id="submitBtn">
+                        <span>⚡</span> Translate Hospital Instructions
+                    </button>
+                </form>
+
+                <!-- Processing State Overlay -->
+                <div id="processingState" style="display: none; text-align: center; padding: 2rem 0;">
+                    <div class="chat-loading" style="margin: 0 auto 1.5rem auto; gap: 8px; justify-content: center;">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <h4 style="font-size: 1.15rem; margin-bottom: 0.5rem; color: var(--primary);">Simplifying Clinical Paperwork...</h4>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;">Extracting diagnostic data, surgical details, and doctor orders.</p>
+                </div>
+            </div>
+
+            <!-- Analysis Result Display (Rendered dynamically if result exists) -->
+            {% if result %}
+            <div class="recovery-dashboard">
+                <div class="dashboard-banner">
+                    <span class="banner-badge">🩺 Medical Translation</span>
+                    <h3 class="banner-title">Translated Care Summary</h3>
+
+                    <p class="banner-subtitle">A plain-language summary of your hospital discharge paperwork.</p>
+                </div>
+
+                <div class="dashboard-card card-summary" style="width: 100%;">
+                    <div class="card-header" style="border-bottom: none; margin-bottom: 0;">
+                        <span class="card-header-icon">📄</span>
+                        <h4>Simplified Care Summary</h4>
+                    </div>
+                    <div class="card-body" id="markdownOutput" style="margin-top: 1.5rem;"></div>
+                </div>
+
+
+                <!-- Hidden template script containing raw markdown response -->
+                <script type="text/template" id="markdownData">{{ result | safe }}</script>
+            </div>
+            {% endif %}
+
+        </div>
+
+        <!-- Basic Guidelines Card Grid (Rendered below translator widget for completeness) -->
+        <div class="guidelines-section">
+            <h3 class="guidelines-title">🧘 Basic Guidelines for Safe Recovery</h3>
+            <div class="guidelines-grid">
+                <div class="guideline-card">
+                    <div class="guideline-icon">🚶</div>
+                    <h4 class="guideline-heading">Activity & Rest</h4>
+                    <p class="guideline-text">Perform light walking around the room to prevent blood clots. Avoid lifting heavy weights or driving until cleared.</p>
+                </div>
+                <div class="guideline-card">
+                    <div class="guideline-icon">💧</div>
+                    <h4 class="guideline-heading">Diet & Hydration</h4>
+                    <p class="guideline-text">Stick to simple, soft home meals. Avoid oily, spicy food. Drink 8-10 glasses of water daily to support healing.</p>
+                </div>
+                <div class="guideline-card">
+                    <div class="guideline-icon">💊</div>
+                    <h4 class="guideline-heading">Medications</h4>
+                    <p class="guideline-text">Always complete full antibiotic cycles even if feeling better. Set reminders to avoid skipping critical doses.</p>
+                </div>
+                <div class="guideline-card">
+                    <div class="guideline-icon">🚨</div>
+                    <h4 class="guideline-heading">Danger Symptoms</h4>
+                    <p class="guideline-text">Watch for red flags: high fever, severe unmanageable pain, heavy bleeding, or breathing trouble. Call 112 immediately.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>Source: ICMR Guidelines, Jan Aushadhi Database | Not a substitute for professional medical advice</p>
+    </footer>
+
+    <!-- Frontend UI Scripts -->
+    <script>
+        function handleFileSelected(input) {
+            const display = document.getElementById('filenameDisplay');
+            if (input.files && input.files.length > 0) {
+                display.innerText = "Selected: " + input.files[0].name;
+                display.style.display = 'block';
+            } else {
+                display.style.display = 'none';
+            }
+        }
+
+        // Handle Drag & Drop styling
+        const dropzone = document.getElementById('dropzone');
+        if (dropzone) {
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropzone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    dropzone.style.borderColor = 'var(--primary)';
+                    dropzone.style.backgroundColor = 'rgba(79, 70, 229, 0.04)';
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropzone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    dropzone.style.borderColor = 'rgba(226, 232, 240, 0.8)';
+                    dropzone.style.backgroundColor = '#fafbfc';
+                }, false);
+            });
+        }
+
+        // Show loading state on form submit
+        const form = document.getElementById('uploadForm');
+        if (form) {
+            form.addEventListener('submit', () => {
+                document.getElementById('uploadForm').style.display = 'none';
+                document.getElementById('processingState').style.display = 'block';
+            });
+        }
+
+        // Render Markdown if result is present
+        const mdDataElement = document.getElementById('markdownData');
+        if (mdDataElement) {
+            const rawMarkdown = mdDataElement.innerHTML.trim();
+            // Render the cohesive summary using the marked.js parser
+            document.getElementById('markdownOutput').innerHTML = marked.parse(rawMarkdown);
+        }
+    </script>
+</body>
+</html>

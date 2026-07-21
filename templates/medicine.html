@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Medicine Substitute Finder — MedEase</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Plus Jakarta Sans', Arial, sans-serif; background: #F8FAFF; color: #1A1A2E; }
+
+    header {
+      background: white;
+      border-bottom: 1px solid #E5E7EB;
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    header a { color: #1A56DB; text-decoration: none; font-size: 14px; font-weight: 500; }
+    header h1 { font-size: 20px; font-weight: 700; color: #1A1A2E; }
+
+    .disclaimer {
+      background: #FEF3C7;
+      border-left: 4px solid #F59E0B;
+      padding: 10px 24px;
+      font-size: 13px;
+      color: #92400E;
+      font-weight: 500;
+    }
+
+    .container { max-width: 800px; margin: 36px auto; padding: 0 20px; }
+
+    .search-box {
+      background: white;
+      border: 1px solid #E5E7EB;
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 28px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .search-box h2 { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+    .search-box p { font-size: 14px; color: #6B7280; margin-bottom: 20px; }
+
+    .input-row {
+      display: flex;
+      gap: 12px;
+    }
+    input[type="text"] {
+      flex: 1;
+      padding: 12px 16px;
+      border: 1.5px solid #E5E7EB;
+      border-radius: 10px;
+      font-size: 15px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input[type="text"]:focus { border-color: #1A56DB; }
+
+    .btn {
+      background: #1A56DB;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+    .btn:hover { background: #1447B8; }
+
+    .examples {
+      margin-top: 12px;
+      font-size: 12px;
+      color: #9CA3AF;
+    }
+    .examples span {
+      background: #F3F4F6;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-right: 6px;
+      cursor: pointer;
+      display: inline-block;
+      margin-top: 4px;
+    }
+    .examples span:hover { background: #E5E7EB; }
+
+    /* Results */
+    .results-header {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1A1A2E;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #E5E7EB;
+    }
+
+    .medicine-card {
+      background: white;
+      border: 1px solid #E5E7EB;
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    }
+
+    .medicine-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .medicine-name { font-size: 17px; font-weight: 700; color: #1A1A2E; }
+    .generic-name { font-size: 14px; color: #6B7280; margin-top: 3px; }
+    .composition { font-size: 12px; color: #9CA3AF; margin-top: 2px; }
+
+    .savings-badge {
+      background: #DCFCE7;
+      color: #166534;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .price-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .price-box {
+      background: #F8FAFF;
+      border-radius: 10px;
+      padding: 12px 16px;
+      text-align: center;
+    }
+    .price-box.brand { background: #FEF2F2; }
+    .price-box.generic { background: #F0FDF4; }
+    .price-box.save { background: #EFF6FF; }
+
+    .price-label { font-size: 11px; font-weight: 600; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .price-value { font-size: 20px; font-weight: 800; }
+    .price-box.brand .price-value { color: #DC2626; }
+    .price-box.generic .price-value { color: #16A34A; }
+    .price-box.save .price-value { color: #1A56DB; }
+
+    .warning-box {
+      background: #FFFBEB;
+      border: 1px solid #FDE68A;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: #92400E;
+      line-height: 1.6;
+    }
+
+    .no-result {
+      background: white;
+      border: 1px solid #E5E7EB;
+      border-radius: 14px;
+      padding: 40px;
+      text-align: center;
+      color: #6B7280;
+    }
+    .no-result h3 { font-size: 18px; margin-bottom: 8px; color: #1A1A2E; }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 24px;
+      color: #1A56DB;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 12px;
+      color: #9CA3AF;
+      border-top: 1px solid #E5E7EB;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="/">← Back to Home</a>
+    <h1>💊 Medicine Substitute Finder</h1>
+    <nav style="margin-left: auto;">
+      <ul style="display: flex; gap: 1.25rem; list-style: none; align-items: center;">
+        {% if session.get('user') %}
+          <li><span style="color: #1A56DB; font-weight: 700; font-size: 14px; cursor: default;">👤 {{ session['user']['email'].split('@')[0] }}</span></li>
+          <li><a href="/logout" style="color: #DC2626; text-decoration: none; font-size: 14px; font-weight: 600;">Logout</a></li>
+        {% else %}
+          <li><a href="/login" style="color: #374151; text-decoration: none; font-size: 14px; font-weight: 600;">Login</a></li>
+          <li><a href="/register" style="background: #1A56DB; color: white; border-radius: 8px; padding: 0.4rem 0.8rem; text-decoration: none; font-size: 14px; font-weight: 600;">Register</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  </header>
+
+  <div class="disclaimer">
+    ⚠️ Generic substitutes shown are for informational purposes only.
+    Always consult your <strong>doctor or pharmacist</strong> before switching medicines.
+    Do not change medicines without medical advice.
+  </div>
+
+  <div class="container">
+
+    <div class="search-box">
+      <h2>Find a cheaper generic alternative</h2>
+      <p>Type the brand name of your medicine — we'll show you the generic equivalent and how much you can save.</p>
+
+      <form method="POST" action="/medicine/search">
+        <div class="input-row">
+          <input type="text" name="brand_name"
+                 placeholder="e.g. Crocin, Dolo 650, Pan 40..."
+                 value="{{ searched or '' }}"
+                 required>
+          <button type="submit" class="btn">🔍 Find Generic</button>
+        </div>
+      </form>
+
+      <div class="examples">
+        Try: 
+        <span onclick="fillSearch('Crocin')">Crocin</span>
+        <span onclick="fillSearch('Dolo 650')">Dolo 650</span>
+        <span onclick="fillSearch('Pan 40')">Pan 40</span>
+        <span onclick="fillSearch('Augmentin')">Augmentin</span>
+        <span onclick="fillSearch('Atorva')">Atorva</span>
+      </div>
+    </div>
+
+    {% if searched %}
+      {% if results %}
+        <div class="results-header">
+          Found {{ results|length }} result(s) for "{{ searched }}"
+        </div>
+
+        {% for med in results %}
+        <div class="medicine-card">
+          <div class="medicine-top">
+            <div>
+              <div class="medicine-name">{{ med.brand_name }}</div>
+              <div class="generic-name">Generic: {{ med.generic_name }}</div>
+              <div class="composition">Composition: {{ med.composition }}</div>
+            </div>
+            <div class="savings-badge">Save {{ med.savings_pct|int }}%</div>
+          </div>
+
+          <div class="price-row">
+            <div class="price-box brand">
+              <div class="price-label">Brand Price</div>
+              <div class="price-value">₹{{ med.price_brand }}</div>
+            </div>
+            <div class="price-box generic">
+              <div class="price-label">Generic Price</div>
+              <div class="price-value">₹{{ med.price_generic }}</div>
+            </div>
+            <div class="price-box save">
+              <div class="price-label">You Save</div>
+              <div class="price-value">₹{{ med.savings }}</div>
+            </div>
+          </div>
+
+          <div class="warning-box">
+            ⚠️ <strong>Important:</strong> This generic medicine contains the same active composition as {{ med.brand_name }}.
+            However, always ask your <strong>doctor or pharmacist</strong> before switching.
+            Generic medicines are available at Jan Aushadhi stores near you.
+          </div>
+        </div>
+        {% endfor %}
+
+      {% else %}
+        <div class="no-result">
+          <h3>No results found for "{{ searched }}"</h3>
+          <p>This medicine may not be in our database yet. Ask your pharmacist directly about generic alternatives.</p>
+        </div>
+      {% endif %}
+    {% endif %}
+
+    <a class="back-link" href="/">← Back to all features</a>
+
+  </div>
+
+  <footer>
+    Source: Jan Aushadhi Database, CDSCO | Prices are approximate and may vary by location
+  </footer>
+
+  <script>
+    function fillSearch(name) {
+      document.querySelector('input[name="brand_name"]').value = name;
+    }
+  </script>
+
+</body>
+</html>

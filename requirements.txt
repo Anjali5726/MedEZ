@@ -1,0 +1,8 @@
+flask
+pymupdf
+mysql-connector-python
+google-generativeai
+python-dotenv
+werkzeug
+boto3
+pypdf

@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Symptom to Specialist — MedEase</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Plus Jakarta Sans', Arial, sans-serif; background: #F8FAFF; color: #1A1A2E; }
+
+    header {
+      background: white;
+      border-bottom: 1px solid #E5E7EB;
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    header a { color: #1A56DB; text-decoration: none; font-size: 14px; font-weight: 500; }
+    header h1 { font-size: 20px; font-weight: 700; }
+
+    .disclaimer {
+      background: #FEF3C7;
+      border-left: 4px solid #F59E0B;
+      padding: 10px 24px;
+      font-size: 13px;
+      color: #92400E;
+      font-weight: 500;
+    }
+
+    .container { max-width: 860px; margin: 36px auto; padding: 0 20px; }
+
+    .input-card {
+      background: white;
+      border: 1px solid #E5E7EB;
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .input-card h2 { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+    .input-card p { font-size: 14px; color: #6B7280; margin-bottom: 20px; }
+
+    textarea {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1.5px solid #E5E7EB;
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      resize: vertical;
+      min-height: 120px;
+      transition: border-color 0.2s;
+    }
+    textarea:focus { border-color: #1A56DB; }
+
+    .location-wrapper {
+      margin: 14px 0;
+    }
+    .location-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #374151;
+      display: block;
+      margin-bottom: 6px;
+    }
+    .location-input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid #E5E7EB;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .location-input:focus { border-color: #1A56DB; }
+    .location-status {
+      font-size: 12px;
+      color: #9CA3AF;
+      margin-top: 5px;
+    }
+
+    .btn {
+      background: #1A56DB;
+      color: white;
+      border: none;
+      padding: 13px 28px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      width: 100%;
+      margin-top: 12px;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: #1447B8; }
+
+    .emergency-banner {
+      background: #FEE2E2;
+      border: 2px solid #DC2626;
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    .emergency-banner h2 { color: #DC2626; font-size: 22px; margin-bottom: 8px; }
+    .emergency-banner p { color: #991B1B; font-size: 15px; }
+    .emergency-number { font-size: 36px; font-weight: 800; color: #DC2626; margin: 12px 0; }
+
+    .result-card {
+      background: white;
+      border: 1px solid #E5E7EB;
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    }
+    .specialist-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .specialist-name { font-size: 22px; font-weight: 800; color: #1A1A2E; }
+    .urgency-badge { padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; }
+    .urgency-today  { background: #FEE2E2; color: #991B1B; }
+    .urgency-3days  { background: #FEF3C7; color: #92400E; }
+    .urgency-week   { background: #DBEAFE; color: #1E40AF; }
+    .urgency-norush { background: #DCFCE7; color: #166534; }
+
+    .reason-box {
+      background: #F8FAFF;
+      border: 1px solid #E5E7EB;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 14px;
+      color: #374151;
+      line-height: 1.6;
+    }
+
+    .doctors-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #E5E7EB;
+    }
+
+    #map {
+      height: 320px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #E5E7EB;
+      overflow: hidden;
+    }
+
+    .doctor-card {
+      background: white;
+      border: 1px solid #E5E7EB;
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .doctor-name    { font-size: 15px; font-weight: 700; color: #1A1A2E; }
+    .doctor-address { font-size: 13px; color: #6B7280; margin-top: 3px; }
+    .doctor-phone   { font-size: 13px; color: #6B7280; margin-top: 2px; }
+    .doctor-hours   { font-size: 12px; color: #9CA3AF; margin-top: 2px; }
+
+    .maps-btn {
+      background: #1A56DB;
+      color: white;
+      padding: 8px 14px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .maps-btn:hover { background: #1447B8; }
+
+    .no-doctors {
+      background: #F9FAFB;
+      border: 1px solid #E5E7EB;
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      color: #6B7280;
+      font-size: 14px;
+    }
+
+    .error-box {
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      border-radius: 12px;
+      padding: 16px 20px;
+      color: #991B1B;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .disclaimer-box {
+      background: #FFFBEB;
+      border: 1px solid #FDE68A;
+      border-radius: 10px;
+      padding: 14px 18px;
+      font-size: 13px;
+      color: #92400E;
+      margin-top: 20px;
+      line-height: 1.6;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 24px;
+      color: #1A56DB;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .google-maps-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: #4285F4;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: 16px;
+      transition: background 0.2s;
+    }
+    .google-maps-btn:hover { background: #357AE8; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="/">← Back to Home</a>
+    <h1>🩺 Symptom to Specialist</h1>
+    <nav style="margin-left: auto;">
+      <ul style="display: flex; gap: 1.25rem; list-style: none; align-items: center;">
+        {% if session.get('user') %}
+          <li><span style="color: #1A56DB; font-weight: 700; font-size: 14px; cursor: default;">👤 {{ session['user']['email'].split('@')[0] }}</span></li>
+          <li><a href="/logout" style="color: #DC2626; text-decoration: none; font-size: 14px; font-weight: 600;">Logout</a></li>
+        {% else %}
+          <li><a href="/login" style="color: #374151; text-decoration: none; font-size: 14px; font-weight: 600;">Login</a></li>
+          <li><a href="/register" style="background: #1A56DB; color: white; border-radius: 8px; padding: 0.4rem 0.8rem; text-decoration: none; font-size: 14px; font-weight: 600;">Register</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  </header>
+
+  <div class="disclaimer">
+    ⚠️ This tool gives directional guidance only — NOT a diagnosis.
+    Always consult a qualified doctor. Emergency: <strong>112</strong>
+  </div>
+
+  <div class="container">
+
+    <div class="input-card">
+      <h2>Describe your symptoms</h2>
+      <p>Tell us what you're experiencing in simple words. We'll suggest which specialist to see and find doctors near you.</p>
+
+      <form method="POST" action="/symptoms" id="symptomsForm">
+
+        <textarea name="symptoms"
+                  placeholder="e.g. I have been having chest pain and shortness of breath for the past 2 days..."
+                  required>{{ request.form.get('symptoms', '') }}</textarea>
+
+        <div class="location-wrapper">
+          <label class="location-label">
+            📍 Your City or Area
+            <span style="font-weight:400;color:#9CA3AF;">(helps find nearby doctors)</span>
+          </label>
+          <input type="text"
+                 name="location"
+                 class="location-input"
+                 id="locationInput"
+                 value="{{ location }}"
+                 placeholder="e.g. Rohini Delhi, Andheri Mumbai, Koramangala Bangalore..."
+                 oninput="geocodeLocation(this.value)">
+          <div class="location-status" id="locationStatus">
+            Type your area name — we'll find doctors nearby
+          </div>
+        </div>
+
+        <input type="hidden" name="latitude" id="latitude">
+        <input type="hidden" name="longitude" id="longitude">
+
+        <button type="submit" class="btn" id="submitBtn">
+          🔍 Find My Specialist
+        </button>
+
+      </form>
+    </div>
+
+    {% if error %}
+    <div class="error-box">⚠️ {{ error }}</div>
+    {% endif %}
+
+    {% if result %}
+
+      {% if result.is_emergency %}
+      <div class="emergency-banner">
+        <h2>🚨 This may be a Medical Emergency</h2>
+        <div class="emergency-number">📞 112</div>
+        <p>Please call emergency services or go to the nearest hospital immediately.</p>
+        <p style="margin-top:8px;font-size:13px;">Do not drive yourself — call for help.</p>
+        
+        <!-- Google Maps Free Search Button for Emergency -->
+        <div>
+          <a href="https://www.google.com/maps/search/?api=1&query=hospital{% if location %}+in+{{ location | urlencode }}{% else %}+near+me{% endif %}" 
+             target="_blank" 
+             class="google-maps-btn" 
+             style="background: #DC2626; border: 1px solid white;">
+             🏥 Find Nearest Hospitals on Google Maps
+          </a>
+        </div>
+      </div>
+
+      {% else %}
+      <div class="result-card">
+        <div class="specialist-row">
+          <div class="specialist-name">👨‍⚕️ {{ result.specialist }}</div>
+          <span class="urgency-badge
+            {% if result.urgency == 'Today' %}urgency-today
+            {% elif result.urgency == 'Within 3 days' %}urgency-3days
+            {% elif result.urgency == 'Within a week' %}urgency-week
+            {% else %}urgency-norush{% endif %}">
+            🕐 {{ result.urgency }}
+          </span>
+        </div>
+        <div class="reason-box">{{ result.reason }}</div>
+        
+        <!-- Google Maps Free Search Button -->
+        <div>
+          <a href="https://www.google.com/maps/search/?api=1&query={{ result.specialist | urlencode }}{% if location %}+in+{{ location | urlencode }}{% else %}+near+me{% endif %}" 
+             target="_blank" 
+             class="google-maps-btn">
+             🗺️ Search for {{ result.specialist }}s on Google Maps
+          </a>
+        </div>
+      </div>
+      {% endif %}
+
+      <div id="doctorsSection">
+        <div class="no-doctors">⏳ Looking for doctors near you...</div>
+      </div>
+
+      <div class="disclaimer-box">
+        ⚠️ <strong>Important:</strong> This specialist suggestion is AI-generated
+        and is for directional guidance only. It is NOT a medical diagnosis.
+        Please consult a qualified doctor. Emergency: Call <strong>112</strong>
+      </div>
+
+    {% endif %}
+
+    <a class="back-link" href="/">← Back to all features</a>
+  </div>
+
+  <footer>
+    Doctor locations near you | Not a substitute for medical advice
+  </footer>
+
+  <script>
+    // ── Form submit handler ──────────────────────────────
+    document.getElementById('symptomsForm').addEventListener('submit', function() {
+      const btn = document.getElementById('submitBtn');
+      btn.textContent = '⏳ Analysing symptoms...';
+      btn.style.background = '#93C5FD';
+      btn.style.cursor = 'not-allowed';
+      // Do NOT disable the button — disabled buttons don't submit form data
+    });
+
+    // ── Geocode typed location ───────────────────────────
+    let geocodeTimer = null;
+
+    function geocodeLocation(value) {
+      clearTimeout(geocodeTimer);
+
+      const status = document.getElementById('locationStatus');
+
+      if (value.length < 3) {
+        status.textContent = 'Type your area name — we\'ll find doctors nearby';
+        status.style.color = '#9CA3AF';
+        document.getElementById('latitude').value = '';
+        document.getElementById('longitude').value = '';
+        return;
+      }
+
+      geocodeTimer = setTimeout(function() {
+        status.textContent = '🔍 Finding location...';
+        status.style.color = '#6B7280';
+
+        fetch(
+          'https://nominatim.openstreetmap.org/search?q='
+          + encodeURIComponent(value)
+          + '&format=json&limit=1&countrycodes=in',
+          { headers: { 'Accept-Language': 'en' } }
+        )
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          if (data && data.length > 0) {
+            document.getElementById('latitude').value  = data[0].lat;
+            document.getElementById('longitude').value = data[0].lon;
+            const name = data[0].display_name.split(',').slice(0, 2).join(',');
+            status.textContent = '✅ Found: ' + name;
+            status.style.color = '#16A34A';
+          } else {
+            status.textContent = '❌ Area not found. Try a different name.';
+            status.style.color = '#DC2626';
+            document.getElementById('latitude').value  = '';
+            document.getElementById('longitude').value = '';
+          }
+        })
+        .catch(function() {
+          status.textContent = 'Could not look up location. Doctor search will be skipped.';
+          status.style.color = '#6B7280';
+        });
+
+      }, 800);
+    }
+
+    // ── Load doctors after page renders ─────────────────
+    {% if result %}
+
+    (function loadDoctors() {
+      const lat        = "{{ request.form.get('latitude', '') }}";
+      const lon        = "{{ request.form.get('longitude', '') }}";
+      const specialist = "{{ result.search_term | default('hospital') }}";
+      const section    = document.getElementById('doctorsSection');
+
+      if (!lat || !lon) {
+        section.innerHTML =
+          '<div class="no-doctors">'
+          + '<p>📍 Enter your area in the search box above to find nearby doctors.</p>'
+          + '<p style="margin-top:8px;">Or search on '
+          + '<a href="https://www.practo.com" target="_blank" style="color:#1A56DB;">Practo</a>'
+          + ' for ' + specialist + 's near you.</p>'
+          + '</div>';
+        return;
+      }
+
+      fetch(
+        '/find-doctors?specialist='
+        + encodeURIComponent(specialist)
+        + '&lat=' + lat
+        + '&lon=' + lon
+      )
+      .then(function(res) { return res.json(); })
+      .then(function(doctors) {
+
+        if (!doctors || doctors.length === 0) {
+          section.innerHTML =
+            '<div class="no-doctors">'
+            + '<p>No ' + specialist + 's found in our database near you.</p>'
+            + '<p style="margin-top:8px;">Try '
+            + '<a href="https://www.practo.com" target="_blank" style="color:#1A56DB;">Practo</a>'
+            + ' or '
+            + '<a href="https://www.justdial.com" target="_blank" style="color:#1A56DB;">JustDial</a>.'
+            + '</p></div>';
+          return;
+        }
+
+        // Build map container
+        const mapDiv = document.createElement('div');
+        mapDiv.id = 'map';
+        mapDiv.style.cssText =
+          'height:320px;border-radius:12px;margin-bottom:20px;'
+          + 'border:1px solid #E5E7EB;overflow:hidden;';
+        section.innerHTML = '';
+        section.appendChild(mapDiv);
+
+        // Initialise Leaflet map
+        const map = L.map('map').setView(
+          [parseFloat(doctors[0].lat), parseFloat(doctors[0].lon)], 13
+        );
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: ''
+        }).addTo(map);
+
+        // Build cards + markers
+        let html = '<div class="doctors-title">📍 '
+                 + doctors.length + ' doctor(s) found near you</div>';
+
+        doctors.forEach(function(doc) {
+          L.marker([parseFloat(doc.lat), parseFloat(doc.lon)])
+           .addTo(map)
+           .bindPopup('<strong>' + doc.name + '</strong><br>' + doc.address);
+
+          html +=
+            '<div class="doctor-card">'
+            + '<div>'
+            + '<div class="doctor-name">'   + doc.name          + '</div>'
+            + '<div class="doctor-address">📍 ' + doc.address   + '</div>'
+            + '<div class="doctor-phone">📞 '   + doc.phone     + '</div>'
+            + '<div class="doctor-hours">🕐 '   + doc.opening_hours + '</div>'
+            + '</div>'
+            + '<a href="' + doc.maps_link + '" target="_blank" class="maps-btn">'
+            + 'Open in Map →</a>'
+            + '</div>';
+        });
+
+        section.innerHTML += html;
+      })
+      .catch(function() {
+        section.innerHTML =
+          '<div class="no-doctors">'
+          + 'Could not load nearby doctors. Please try '
+          + '<a href="https://www.practo.com" target="_blank" style="color:#1A56DB;">Practo</a>.'
+          + '</div>';
+      });
+    })();
+
+    {% endif %}
+  </script>
+
+</body>
+</html>

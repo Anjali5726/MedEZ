@@ -1,0 +1,19 @@
+# Environment variables (Crucial: Keep API keys and passwords safe)
+.env
+.env.local
+.env.*
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+env/
+
+# Uploads and temporary files
+uploads/
+temp_*
+*.pdf
+*.log
+debug_safety_log.txt

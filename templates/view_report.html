@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ report.title }} — MedEase</title>
+  <!-- Premium Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <!-- Markdown Parser -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    .report-view-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 3rem;
+      box-shadow: var(--shadow-premium);
+      animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    .report-banner {
+      background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+      border-radius: 18px;
+      padding: 2rem 2.5rem;
+      color: white;
+      box-shadow: 0 10px 25px rgba(79, 70, 229, 0.15);
+      margin-bottom: 2rem;
+      position: relative;
+    }
+    
+    .report-banner-badge {
+      display: inline-block;
+      background-color: rgba(255, 255, 255, 0.18);
+      padding: 0.25rem 0.65rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.75rem;
+    }
+    
+    .report-banner-title {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      color: white;
+    }
+    
+    .report-banner-meta {
+      display: flex;
+      gap: 1.5rem;
+      font-size: 0.88rem;
+      opacity: 0.9;
+      flex-wrap: wrap;
+    }
+    
+    .pdf-download-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background-color: #ffffff;
+      color: var(--primary);
+      text-decoration: none;
+      padding: 0.65rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      transition: all var(--transition-speed);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      margin-top: 1rem;
+    }
+    .pdf-download-btn:hover {
+      background-color: #f8fafc;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+    }
+    
+    .report-content-body {
+      color: var(--text-secondary);
+      font-size: 1rem;
+      line-height: 1.7;
+    }
+    
+    /* Scoped Markdown rendering styles */
+    .report-content-body p { margin-bottom: 1rem; }
+    .report-content-body ul, .report-content-body ol { margin-left: 1.5rem; margin-bottom: 1.25rem; }
+    .report-content-body li { margin-bottom: 0.65rem; color: #334155; }
+    .report-content-body strong { color: #0f172a; font-weight: 700; }
+    .report-content-body hr { border: none; height: 1px; background-color: rgba(226, 232, 240, 0.8); margin: 1.5rem 0; }
+    .report-content-body h3 { font-size: 1.4rem; color: var(--text-primary); margin-top: 1.75rem; margin-bottom: 0.75rem; }
+    .report-content-body h4 { font-size: 1.15rem; color: var(--text-primary); margin-top: 1.5rem; margin-bottom: 0.5rem; }
+    
+    /* Glossary Result layout fallback */
+    .biomarker-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+    
+    .biomarker-card {
+      background-color: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.75rem;
+      box-shadow: var(--shadow-premium);
+      border-left: 5px solid #0891b2;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .biomarker-card-header {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .biomarker-badge {
+      align-self: flex-start;
+      background-color: rgba(8, 145, 178, 0.05);
+      color: #0891b2;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 0.15rem 0.5rem;
+      border-radius: 20px;
+    }
+    
+    .biomarker-name {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    
+    .hindi-badge {
+      font-size: 0.85rem;
+      color: #0d9488;
+      background-color: #ccfbf1;
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+      align-self: flex-start;
+      font-weight: 600;
+    }
+    
+    .biomarker-definition {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header Navigation -->
+  <header>
+    <div class="nav-container">
+      <a href="/" class="logo-group">
+        <div class="logo-icon-container">
+          <span>➕</span>
+        </div>
+        <div class="logo-text-area">
+          <h1 class="logo-title">Med<span>Ease</span></h1>
+          <span class="logo-subtitle">Your Medical Assistant</span>
+        </div>
+      </a>
+      <nav>
+        <ul class="nav-links" style="align-items: center;">
+          <li><a href="/dashboard" class="nav-link">Home</a></li>
+          <li><a href="/records" class="nav-link active">Medical Records</a></li>
+          <li><span class="nav-link" style="color: var(--primary); font-weight: 700; cursor: default;">👤 {{ session['user']['email'].split('@')[0] }}</span></li>
+          <li><a href="/logout" class="nav-link" style="color: var(--accent-red);">Logout</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <div class="report-view-container">
+      
+      <!-- Report Banner Header -->
+      <div class="report-banner">
+        <span class="report-banner-badge">
+          {% if report.report_type == 'discharge' %}📄 Discharge Translation{% else %}🔬 Lab Explainer{% endif %}
+        </span>
+        <h2 class="report-banner-title">{{ report.title }}</h2>
+        <div class="report-banner-meta">
+          <span>📅 Date Saved: {{ report.created_at.strftime('%d-%b-%Y %I:%M %p') }}</span>
+          {% if report.folder_name %}
+            <span>📁 Folder: {{ report.folder_name }}</span>
+          {% else %}
+            <span>📁 Folder: Uncategorized</span>
+          {% endif %}
+        </div>
+        
+        {% if pdf_url %}
+        <a href="{{ pdf_url }}" target="_blank" class="pdf-download-btn">
+          📥 View Original PDF Document
+        </a>
+        {% endif %}
+      </div>
+
+      <!-- Report Body Section -->
+      <div class="report-content-body" id="markdownOutput"></div>
+      
+      <!-- Hidden template script containing raw markdown response -->
+      <script type="text/template" id="markdownData">{{ report.analysis_result | safe }}</script>
+
+      <div style="margin-top: 3rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+        <a class="back-link" href="/records" style="margin-top: 0;">← Back to Medical Records</a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <p>Source: ICMR Guidelines, Jan Aushadhi Database | Not a substitute for professional medical advice</p>
+  </footer>
+
+  <script>
+    // Render Markdown on load
+    const mdDataElement = document.getElementById('markdownData');
+    if (mdDataElement) {
+        const rawMarkdown = mdDataElement.innerHTML.trim();
+        
+        // Check if it is a Lab Explainer report containing bullet points we can render as cards
+        const isLabReport = "{{ report.report_type }}" === "lab_report";
+        const lines = rawMarkdown.split('\n');
+        let biomarkerHtml = '<div class="biomarker-grid">';
+        let hasCards = false;
+
+        if (isLabReport) {
+            lines.forEach(line => {
+                let trimmed = line.trim();
+                if (trimmed.startsWith('*') || trimmed.startsWith('-')) {
+                    let content = trimmed.substring(1).trim();
+                    let match = content.match(/\*\*(.*?)\*\*:\s*(.*)/);
+                    if (match) {
+                        let termPart = match[1].trim();
+                        let definition = match[2].trim();
+                        
+                        let termName = termPart;
+                        let hindiTranslation = "";
+                        let hindiMatch = termPart.match(/(.*?)\((.*?)\)/);
+                        if (hindiMatch) {
+                            termName = hindiMatch[1].trim();
+                            hindiTranslation = hindiMatch[2].trim();
+                        }
+                        
+                        definition = definition.replace(/Ask your doctor about this\./gi, '').trim();
+
+                        biomarkerHtml += `
+                        <div class="biomarker-card">
+                            <div class="biomarker-card-header">
+                                <span class="biomarker-badge">🔬 biomarker</span>
+                                <h4 class="biomarker-name">${termName}</h4>
+                                ${hindiTranslation ? `<span class="hindi-badge">${hindiTranslation}</span>` : ''}
+                            </div>
+                            <p class="biomarker-definition">${definition}</p>
+                            <div style="margin-top: auto; padding-top: 1rem; font-size: 0.75rem; font-style: italic; color: var(--text-muted);">
+                                Ask your doctor about this.
+                            </div>
+                        </div>
+                        `;
+                        hasCards = true;
+                    }
+                }
+            });
+        }
+        biomarkerHtml += '</div>';
+
+        if (isLabReport && hasCards) {
+            document.getElementById('markdownOutput').innerHTML = biomarkerHtml;
+        } else {
+            // Render standard markdown for discharge summaries
+            document.getElementById('markdownOutput').innerHTML = marked.parse(rawMarkdown);
+        }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — MedEase</title>
+  <!-- Premium Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      position: relative;
+    }
+    
+    .auth-container {
+      width: 100%;
+      max-width: 460px;
+      margin: auto;
+      z-index: 10;
+    }
+    
+    .auth-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 3rem 2.5rem;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+      animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    /* Premium Pulsing Logo */
+    .logo-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 2.25rem;
+    }
+    
+    .logo-icon-glowing {
+      width: 68px;
+      height: 68px;
+      background: var(--primary-grad);
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 25px rgba(79, 70, 229, 0.35), 0 0 0 5px rgba(79, 70, 229, 0.08);
+      margin-bottom: 1.15rem;
+      animation: pulseGlow 3s infinite alternate;
+    }
+    
+    .logo-icon-glowing span {
+      font-size: 2.1rem;
+      color: white;
+      font-weight: 800;
+      line-height: 1;
+    }
+    
+    .logo-title-large {
+      font-size: 2.4rem;
+      font-weight: 900;
+      color: var(--text-primary);
+      line-height: 1.1;
+      margin-bottom: 0.35rem;
+    }
+    
+    .logo-title-large span {
+      background: linear-gradient(to right, #4f46e5, #0891b2);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .logo-tagline {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-align: center;
+    }
+    
+    .auth-footer-link {
+      text-align: center;
+      margin-top: 1.75rem;
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    
+    .auth-footer-link a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 700;
+      transition: color 0.2s;
+    }
+    
+    .auth-footer-link a:hover {
+      color: #3b82f6;
+    }
+    
+    .alert-box {
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .alert-danger {
+      background-color: var(--accent-red-bg);
+      border: 1px solid rgba(225, 29, 72, 0.2);
+      color: #9f1239;
+    }
+    
+    .alert-success {
+      background-color: var(--accent-green-bg);
+      border: 1px solid rgba(5, 150, 105, 0.2);
+      color: #065f46;
+    }
+    
+    /* Guest Button styling */
+    .btn-secondary {
+      background: transparent;
+      border: 1.5px solid var(--border-color);
+      color: var(--text-secondary);
+      font-weight: 600;
+      font-family: inherit;
+      border-radius: 8px;
+      padding: 0.85rem 1.75rem;
+      font-size: 0.98rem;
+      cursor: pointer;
+      transition: all var(--transition-speed);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: 100%;
+      margin-top: 0.75rem;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.01);
+    }
+    
+    .btn-secondary:hover {
+      background-color: rgba(15, 23, 42, 0.03);
+      border-color: var(--text-muted);
+      color: var(--text-primary);
+    }
+    
+    .divider-line {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin: 1.25rem 0;
+    }
+    
+    .divider-line::before, .divider-line::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .divider-line:not(:empty)::before { margin-right: .75rem; }
+    .divider-line:not(:empty)::after { margin-left: .75rem; }
+
+    @keyframes pulseGlow {
+      0% {
+        box-shadow: 0 10px 25px rgba(79, 70, 229, 0.35), 0 0 0 4px rgba(79, 70, 229, 0.06);
+        transform: scale(1);
+      }
+      100% {
+        box-shadow: 0 15px 35px rgba(79, 70, 229, 0.45), 0 0 0 8px rgba(79, 70, 229, 0.15);
+        transform: scale(1.04);
+      }
+    }
+    
+    footer {
+      border: none;
+      background: transparent;
+      padding: 24px 0 0 0;
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Main Content -->
+  <main class="auth-container">
+    <div class="auth-card">
+      
+      <!-- Smart pulsing logo -->
+      <div class="logo-box">
+        <div class="logo-icon-glowing">
+          <span>➕</span>
+        </div>
+        <h2 class="logo-title-large">Med<span>Ease</span></h2>
+        <p class="logo-tagline">Your Plain-Language Medical Assistant</p>
+      </div>
+
+      {% if error %}
+      <div class="alert-box alert-danger">
+        <span>⚠️</span> {{ error }}
+      </div>
+      {% endif %}
+
+      {% if success %}
+      <div class="alert-box alert-success">
+        <span>✅</span> {{ success }}
+      </div>
+      {% endif %}
+
+      <form method="POST" action="/login">
+        <div class="form-group">
+          <label class="form-label" for="email">Email Address</label>
+          <input type="email" name="email" id="email" class="form-input" placeholder="name@example.com" required value="{{ email or '' }}">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <input type="password" name="password" id="password" class="form-input" placeholder="••••••••" required>
+        </div>
+
+        <button type="submit" class="btn-primary" style="margin-top: 1.25rem;">
+          🔑 Log In to Account
+        </button>
+      </form>
+
+      <!-- Optional Access Route -->
+      <div class="divider-line">OR</div>
+      
+      <a href="/guest" class="btn-secondary" style="text-decoration: none;">
+        🚪 Continue as Guest (Skip Login)
+      </a>
+
+      <p class="auth-footer-link">
+        Don't have an account yet? <a href="/register">Register here</a>
+      </p>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <p>Source: ICMR Guidelines, Jan Aushadhi Database | Not a substitute for professional medical advice</p>
+  </footer>
+
+</body>
+</html>

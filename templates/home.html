@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedEase — Your Plain-Language Medical Assistant</title>
+    <!-- Premium Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    <style>
+        /* Scoped style system for the home dashboard */
+        .hero-hub {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+            animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: rgba(79, 70, 229, 0.06);
+            border: 1px solid rgba(79, 70, 229, 0.15);
+            color: #4f46e5;
+            padding: 0.35rem 0.85rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 1.25rem;
+        }
+
+        .hero-title {
+            font-size: 3.1rem;
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 1rem;
+            color: #0f172a;
+        }
+
+        .hero-title span {
+            background: linear-gradient(135deg, #4f46e5 30%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.15rem;
+            font-weight: 500;
+            line-height: 1.6;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 1rem;
+            animation: slideUp 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header>
+        <div class="nav-container">
+            <a href="/" class="logo-group">
+                <div class="logo-icon-container">
+                    <span>➕</span>
+                </div>
+                <div class="logo-text-area">
+                    <h1 class="logo-title">Med<span>Ease</span></h1>
+                    <span class="logo-subtitle">Your Medical Assistant</span>
+                </div>
+            </a>
+            <nav>
+                <ul class="nav-links" style="align-items: center;">
+                    <li><a href="/" class="nav-link active">Home</a></li>
+                    <li><a href="/discharge" class="nav-link">Discharge Translator</a></li>
+                    {% if session.get('user') %}
+                        <li><a href="/records" class="nav-link">Medical Records</a></li>
+                        <li><a href="/admin/users" class="nav-link" style="color: var(--primary); font-weight: 600;">Admin Panel</a></li>
+                        <li><span class="nav-link" style="color: var(--primary); font-weight: 700; cursor: default;">👤 {{ session['user']['email'].split('@')[0] }}</span></li>
+                        <li><a href="/logout" class="nav-link" style="color: var(--accent-red);">Logout</a></li>
+                    {% else %}
+                        <li><a href="/login" class="nav-link">Login</a></li>
+                        <li><a href="/register" class="nav-link" style="background: var(--primary-grad); color: white; border-radius: 8px; padding: 0.5rem 1rem;">Register</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Stylized Emergency Notification Banner -->
+    <div class="disclaimer-banner">
+        <span class="disclaimer-icon">⚠️</span>
+        <p class="disclaimer-text">
+            All explanations are automated for general understanding only. This is <strong>NOT</strong> medical advice. Always consult a qualified doctor. <strong>Emergency: call 112</strong>
+        </p>
+    </div>
+
+    <!-- Main Content -->
+    <main style="display: flex; flex-direction: column; gap: 3.5rem;">
+        
+        <!-- Hero Header -->
+        <section class="hero-hub">
+            <div class="badge-pill">
+                <span>🩺</span> Clinical Translation Hub
+            </div>
+            <h2 class="hero-title">Your <span>Plain-Language</span> Medical Assistant</h2>
+            <p class="hero-subtitle">Built for every Indian family. Easily translate complex medical reports, find generic medicines, and evaluate symptoms.</p>
+        </section>
+
+
+        <!-- Features Grid -->
+        <section class="features-grid">
+            
+            <!-- Feature 1: Discharge Summary Translator -->
+            <a href="/discharge" class="feature-card card-discharge">
+                <div class="card-icon-wrapper">
+                    <span class="card-icon">📄</span>
+                </div>
+                <h3 class="card-title">Discharge Summary Translator</h3>
+                <p class="card-description">Upload your hospital discharge PDF and get a plain-language explanation of every medical term, procedure, and doctor instruction.</p>
+                <span class="card-action">Translate Paperwork &rarr;</span>
+            </a>
+
+            <!-- Feature 2: Medicine Substitute Finder -->
+            <a href="/medicine" class="feature-card card-substitute">
+                <div class="card-icon-wrapper">
+                    <span class="card-icon">💊</span>
+                </div>
+                <h3 class="card-title">Medicine Substitute Finder</h3>
+                <p class="card-description">Find cheaper generic alternatives to branded medications — verified and cross-referenced with official Jan Aushadhi data.</p>
+                <span class="card-action">Find Alternatives &rarr;</span>
+            </a>
+
+            <!-- Feature 3: Blood Report Explainer -->
+            <a href="/testreport" class="feature-card card-blood">
+                <div class="card-icon-wrapper">
+                    <span class="card-icon">🩸</span>
+                </div>
+                <h3 class="card-title">Test Report Explainer</h3>
+                <p class="card-description">Upload your medical test report and understand what each biomarker means, color-coded and flagged by clinical severity.</p>
+                <span class="card-action">Explain Biomarkers &rarr;</span>
+            </a>
+
+            <!-- Feature 4: Symptom to Specialist -->
+            <a href="/symptoms" class="feature-card card-symptom">
+                <div class="card-icon-wrapper">
+                    <span class="card-icon">🩺</span>
+                </div>
+                <h3 class="card-title">Symptom to Specialist</h3>
+                <p class="card-description">Describe your current symptoms in simple words and instantly find out which medical specialist you need to see — and how urgently.</p>
+                <span class="card-action">Check Symptoms &rarr;</span>
+            </a>
+
+            <!-- Feature 5: Medical Records & Folders (requires login) -->
+            <a href="/records" class="feature-card card-records" style="position: relative;">
+                <div class="card-icon-wrapper" style="background: rgba(16, 185, 129, 0.06); color: #10b981;">
+                    <span class="card-icon">📁</span>
+                </div>
+                <h3 class="card-title">Saved Medical Records</h3>
+                <p class="card-description">Store, access, and organize all your translated summaries and explained medical reports into folders. (Authentication required)</p>
+                <span class="card-action" style="color: #10b981;">Manage Records &rarr;</span>
+                {% if not session.get('user') %}
+                <span style="position: absolute; top: 1.5rem; right: 1.5rem; background: var(--accent-orange-bg); color: var(--accent-orange); font-size: 0.72rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 20px; text-transform: uppercase;">🔒 Login Required</span>
+                {% endif %}
+            </a>
+
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>Source: ICMR Guidelines, Jan Aushadhi Database | Not a substitute for professional medical advice</p>
+    </footer>
+
+</body>
+</html>

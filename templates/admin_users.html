@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — MedEase</title>
+  <!-- Premium Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    .admin-layout {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      margin-top: 1rem;
+      animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    .admin-banner {
+      background: linear-gradient(135deg, #4f46e5 0%, #0891b2 100%);
+      border-radius: 18px;
+      padding: 2rem 2.5rem;
+      color: white;
+      box-shadow: 0 10px 25px rgba(79, 70, 229, 0.15);
+      margin-bottom: 1rem;
+    }
+    
+    .admin-banner-badge {
+      display: inline-block;
+      background-color: rgba(255, 255, 255, 0.18);
+      padding: 0.25rem 0.65rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.75rem;
+    }
+    
+    .admin-banner-title {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      color: white;
+    }
+    
+    .admin-banner-subtitle {
+      font-size: 0.88rem;
+      opacity: 0.9;
+    }
+
+    /* Grid for statistics */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 2rem;
+      box-shadow: var(--shadow-premium);
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      transition: var(--transition-smooth);
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-hover);
+      border-color: rgba(79, 70, 229, 0.15);
+    }
+
+    .stat-icon-wrapper {
+      width: 60px;
+      height: 60px;
+      border-radius: 16px;
+      background: rgba(79, 70, 229, 0.06);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+    }
+
+    .stat-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-value {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1.1;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .stat-label {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 0.25rem;
+    }
+
+    /* User Table Card */
+    .table-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 2rem;
+      box-shadow: var(--shadow-premium);
+    }
+
+    .table-header {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .user-table-wrapper {
+      overflow-x: auto;
+    }
+
+    .user-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    .user-table th {
+      padding: 1rem 1.25rem;
+      background-color: #fafbfc;
+      border-bottom: 2px solid var(--border-color);
+      color: var(--text-secondary);
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .user-table td {
+      padding: 1.15rem 1.25rem;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-primary);
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    .user-table tr:hover {
+      background-color: rgba(79, 70, 229, 0.01);
+    }
+
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--primary-grad);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .user-email-cell {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .date-badge {
+      background-color: rgba(15, 23, 42, 0.04);
+      color: var(--text-secondary);
+      padding: 0.25rem 0.65rem;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3.5rem;
+      color: var(--text-secondary);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header Navigation -->
+  <header>
+    <div class="nav-container">
+      <a href="/" class="logo-group">
+        <div class="logo-icon-container">
+          <span>➕</span>
+        </div>
+        <div class="logo-text-area">
+          <h1 class="logo-title">Med<span>Ease</span></h1>
+          <span class="logo-subtitle">Your Medical Assistant</span>
+        </div>
+      </a>
+      <nav>
+        <ul class="nav-links" style="align-items: center;">
+          <li><a href="/dashboard" class="nav-link">Home</a></li>
+          <li><a href="/records" class="nav-link">Medical Records</a></li>
+          <li><span class="nav-link" style="color: var(--primary); font-weight: 700; cursor: default;">👤 {{ session['user']['email'].split('@')[0] }}</span></li>
+          <li><a href="/logout" class="nav-link" style="color: var(--accent-red);">Logout</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <div class="page-header">
+      <a href="/dashboard" class="back-btn">&larr;</a>
+      <div>
+        <h2 style="font-size: 2rem; color: var(--text-primary);">⚙️ Admin Dashboard</h2>
+        <p style="color: var(--text-secondary); font-size: 0.95rem;">Monitor application users, growth metrics, and database registrations.</p>
+      </div>
+    </div>
+
+    {% if error %}
+    <div class="error-banner">
+      <span>⚠️</span>
+      <span>{{ error }}</span>
+    </div>
+    {% endif %}
+
+    <div class="admin-layout">
+      <!-- Admin Banner -->
+      <div class="admin-banner">
+        <span class="admin-banner-badge">System Statistics</span>
+        <h3 class="admin-banner-title">MedEase User Metrics</h3>
+        <p class="admin-banner-subtitle">Real-time statistics sourced directly from the local MySQL database instance.</p>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon-wrapper">
+            <span>👥</span>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ total_count }}</span>
+            <span class="stat-label">Total Users</span>
+          </div>
+        </div>
+        <!-- We can add placeholder metric cards for future enhancements -->
+        <div class="stat-card">
+          <div class="stat-icon-wrapper" style="background: rgba(16, 185, 129, 0.06); color: #10b981;">
+            <span>🟢</span>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value" style="color: #10b981;">Active</span>
+            <span class="stat-label">System Status</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- User List Table Card -->
+      <div class="table-card">
+        <h3 class="table-header">📁 Registered Accounts List</h3>
+        
+        {% if users %}
+        <div class="user-table-wrapper">
+          <table class="user-table">
+            <thead>
+              <tr>
+                <th>User Details</th>
+                <th>User Database ID</th>
+                <th>Registration Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for user in users %}
+              <tr>
+                <td>
+                  <div class="user-email-cell">
+                    <div class="user-avatar">
+                      {{ user.email[0].upper() }}
+                    </div>
+                    <div>
+                      <div style="font-weight: 700; color: var(--text-primary);">{{ user.email }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span style="font-family: monospace; font-weight: 700; color: var(--text-secondary);">#{{ user.id }}</span>
+                </td>
+                <td>
+                  <span class="date-badge">{{ user.created_at.strftime('%d-%b-%Y %I:%M %p') }}</span>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+          <h3>No users registered yet</h3>
+          <p>User registrations will appear here once new accounts are created.</p>
+        </div>
+        {% endif %}
+      </div>
+
+      <div style="margin-top: 1rem;">
+        <a class="back-link" href="/dashboard">← Back to Dashboard</a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <p>Source: local MySQL DB instance medease_db.users | Administrator Panel</p>
+  </footer>
+
+</body>
+</html>
