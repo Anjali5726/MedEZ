@@ -47,4 +47,3 @@ python app.py
 
 *This project is for portfolio purposes. Please contact me before reusing any part of this project.*
 
-   Open `http://localhost:8081` in your browser.
