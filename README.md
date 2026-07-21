@@ -1,52 +1,50 @@
-# MedEase 🩺 — Plain-Language Medical Assistant
+# 🏥 MedEase — AI-Powered Healthcare Assistant for India
 
-MedEase is a patient-centric web application designed to translate complex medical paperwork and report details into simple, plain language. Built with Indian families in mind, it helps patients understand discharge summaries, decode laboratory test biomarkers, check symptoms to find the right medical specialist, and find affordable generic medicine alternatives.
+> Helping every Indian family understand their medical documents in plain language.
 
----
-
-## 🚀 Key Features
-
-* **📄 Discharge Summary Translator:** Upload hospital discharge PDFs to get a cohesive, plain-language breakdown of diagnoses, surgeries, and care steps, with key medical terms translated into Hindi in parentheses.
-* **🔬 Lab Report Explainer:** Upload blood tests or panel reports to understand reference ranges and biomarker values, flagged dynamically by clinical severity.
-* **🩺 Symptom to Specialist Mapper:** Describe symptoms in simple words to find out which medical specialist is needed and locate clinics or hospitals nearby using interactive Leaflet maps.
-* **💊 Medicine Substitute Finder:** Find cheaper generic equivalents of branded medications, cross-referenced with official Jan Aushadhi database data to save healthcare costs.
-* **📁 Personal Medical Records:** Securely store and organize your clinical explanations and report summaries in custom folders.
+🌐 **Live:** [http://medez.duckdns.org/]
 
 ---
 
-## 🛠️ Tech Stack
+## What it does
 
-* **Backend:** Python, Flask
-* **Database:** MySQL (for users, folders, and reports data)
-* **AI Engine:** Google Gemini API (for clinical translation and triaging)
-* **Frontend:** Responsive HTML5, Premium CSS3, Javascript
-* **Maps API:** Leaflet.js, OpenStreetMap / Nominatim (for local doctor searches)
+| Feature | Description |
+|---------|-------------|
+| 📄 Discharge Summary Translator | Upload hospital discharge PDF → plain language explanation with Hindi terms |
+| 💊 Medicine Substitute Finder | Find verified cheaper generics from Jan Aushadhi database with price comparison |
+| 🔬 Medical Report Explainer | Upload any report (blood, X-ray, MRI, ECG) → AI explains every finding |
+| 🩺 Symptom to Specialist | Describe symptoms → get specialist recommendation + nearby doctors on map |
+| 🗂️ Medical Records Storage | Save your reports securely on AWS S3 |
 
 ---
 
-## 💻 Local Installation & Setup
+## Tech Stack
 
-1. **Clone the repository:**
-   ```bash
-   git clone <your-repository-url>
-   cd MebEZ
-   ```
+`Python` `Flask` `MySQL` `Google Gemini API` `PyMuPDF` `JavaScript` `HTML5/CSS3` `AWS EC2` `AWS S3` `OpenStreetMap`
 
-2. **Configure environment variables:**
-   Create a `.env` file in the root directory and add the following keys:
-   ```env
-   GEMINI_KEY=your_gemini_api_key_here
-   DB_PASSWORD=your_mysql_root_password
-   DB_HOST=localhost
-   ```
+---
 
-3. **Initialize the MySQL database:**
-   ```bash
-   mysql -u root -p < database/setup.sql
-   ```
+## Safety
 
-4. **Run the Flask application:**
-   ```bash
-   python app.py
-   ```
+AI is used for explanation only — never diagnosis. Critical value flagging uses hard-coded ICMR thresholds, not AI. All PDFs are deleted immediately after processing (DPDP Act 2023 compliant).
+
+> ⚠️ Not medical advice. Always consult a qualified doctor. Emergency: **112**
+
+---
+
+## Run Locally
+
+```bash
+git clone https://github.com/Anjali5726/MedEase.git
+cd MedEase
+pip install -r requirements.txt
+mysql -u root -p < database/setup.sql
+cp .env.example .env   # add your Gemini API key + DB password
+python app.py
+```
+
+---
+
+*This project is for portfolio purposes. Please contact me before reusing any part of this project.*
+
    Open `http://localhost:8081` in your browser.
