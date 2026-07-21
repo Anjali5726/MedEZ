@@ -535,6 +535,11 @@ def serve_upload(filename):
     if not session.get('user'):
         return redirect('/')
         
+    # Security check: Ensure users can only download/view their own files
+    user_prefix = f"user_{session['user']['id']}_"
+    if not filename.startswith(user_prefix):
+        return "Access Denied: You do not have permission to view this file.", 403
+        
     from flask import send_from_directory
     uploads_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'uploads')
     return send_from_directory(uploads_dir, filename)

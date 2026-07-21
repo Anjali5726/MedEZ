@@ -208,8 +208,8 @@
       <!-- Report Body Section -->
       <div class="report-content-body" id="markdownOutput"></div>
       
-      <!-- Hidden template script containing raw markdown response -->
-      <script type="text/template" id="markdownData">{{ report.analysis_result | safe }}</script>
+      <!-- Hidden container containing raw markdown response (Jinja2 escaped) -->
+      <div style="display: none;" id="markdownData">{{ report.analysis_result }}</div>
 
       <div style="margin-top: 3rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
         <a class="back-link" href="/records" style="margin-top: 0;">← Back to Medical Records</a>
@@ -226,7 +226,7 @@
     // Render Markdown on load
     const mdDataElement = document.getElementById('markdownData');
     if (mdDataElement) {
-        const rawMarkdown = mdDataElement.innerHTML.trim();
+        const rawMarkdown = mdDataElement.textContent.trim();
         
         // Check if it is a Lab Explainer report containing bullet points we can render as cards
         const isLabReport = "{{ report.report_type }}" === "lab_report";
